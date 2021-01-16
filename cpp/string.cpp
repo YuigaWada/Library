@@ -76,13 +76,14 @@ vector<string> split(const string &s, char delim) {
 // description: "ロリハ"
 
 struct RollingHash {
-    const ll BASE = 1e9+7;
+    const ll BASE = 9973;
     const ll NONMOD = -1;
     vecl mods;
 
     int N;
     void initmods() {
         // mods.push_back(1e9+7);
+        // mods.push_back(999999937);
         mods.push_back(NONMOD);
     }
 
