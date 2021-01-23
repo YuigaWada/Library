@@ -172,16 +172,16 @@ struct Graph {
         vecl dp(V, INF);
         dp[start] = initial_cost;
 
-        priority_queue<ll,vecl,greater<ll>> PQ;
-        PQ.push(start);
+        priority_queue<pairl,vector<pairl>,greater<pairl>> PQ;
+        PQ.emplace(dp[start],start);
 
         vecl update_list(V+10,-1); // update_list[i]: 頂点iを更新した辺番号, 最初は-1
         while (!PQ.empty()) {
-            ll current = PQ.top(); PQ.pop();
+            auto [_,current] = PQ.top(); PQ.pop();
 
             for (auto e : get_edges(current)) {
                 if (!chmin(dp[e.to],dp[current] + e.cost)) continue;
-                PQ.push(e.to);
+                PQ.emplace(dp[e.to],e.to);
                 update_list[e.to] = e.idx;
             }
         }
