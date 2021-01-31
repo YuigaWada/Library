@@ -37,7 +37,9 @@ struct ShortestPath { // 最短経路
     bool diverge; //start → goal でコストが負に発散する
 };
 
+using Groups = umap<ll,uset<ll>>; // parent, children
 struct Graph {
+    vecl uniondata;
     vector<vector<Edge>> g;
     vector<Edge> allE; // allE[es]: 辺番号esの辺
     int es; // 辺番号
@@ -88,6 +90,44 @@ struct Graph {
                 }
             }
         }
+    }
+
+    ///////////////////// Union Find /////////////////////
+
+    void build_unionfind(int size) {
+        uniondata.assign(size, -1);
+        for (auto e : allE) unite(e.from, e.to);
+    }
+
+    bool unite(ll x, ll y) {
+        x = find_group_parent(x), y = find_group_parent(y);
+        if(x == y) return false;
+        if(uniondata[x] > uniondata[y]) swap(x, y);
+        uniondata[x] += uniondata[y], uniondata[y] = x;
+        return true;
+    }
+
+    bool same_group(ll x, ll y) {
+        return find_group_parent(x) == find_group_parent(y);
+    }
+
+    ll find_group_parent(ll k) {
+        if(uniondata[k] < 0) return k;
+        return uniondata[k] = find_group_parent(uniondata[k]);
+    }
+
+    ll size(ll k) {
+        return -uniondata[find_group_parent(k)];
+    }
+
+    Groups groups() { // 初期でsizeを大きくとってると、大きな値のノードが帰ってくる可能性があるので注意
+        Groups g;
+        rep(i,sz(uniondata)){
+            ll parent = find_group_parent(i);
+            if (g.count(parent) == 0) g[parent] = uset<ll>();
+            g[parent].insert(i);
+        }
+        return g;
     }
 
     ////////////////////////////////////////////////////
