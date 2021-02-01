@@ -133,45 +133,42 @@ struct Graph {
     ////////////////////////////////////////////////////
 
     // BFS: O(E+V)
-    void bfs(Point start, vector<vecl> &dp, ll initial_cost = 0) {
-        dp[start.i][start.j] = initial_cost;
+    vecl bfs(ll start, ll V, ll initial_cost = 0) {
+        vecl dp(V, INF);
+        dp[start] = initial_cost;
 
         queue<ll> S;
-        S.push(transform(start.i,start.j));
+        S.push(start);
 
         while (!S.empty()) {
             ll current = S.front(); S.pop();
-            auto [i,j] = transform(current);
-
             for (auto e : get_edges(current)) {
-                auto [ni,nj] = transform(e.to);
-                if (!chmin(dp[ni][nj],dp[i][j] + e.cost)) continue;
+                if (!chmin(dp[e.to],dp[current] + e.cost)) continue;
                 S.push(e.to);
             }
         }
+        return dp;
     }
 
     // 01BFS: O(E+V)
-    void zero_one_bfs(Point start, vector<vecl> &dp, ll initial_cost = 0) {
+    vecl zero_one_bfs(ll start, ll V, ll initial_cost = 0) {
+        vecl dp(V, INF);
+        dp[start] = initial_cost;
+
         deque<pairl> S;
-        S.push_front({transform(start.i, start.j),initial_cost});
+        S.emplace_front(start,initial_cost);
 
         while (!S.empty()) {
             auto [current,cost] = S.front(); S.pop_front();
-            auto [i,j] = transform(current);
 
-            if (!chmin(dp[i][j], cost)) continue;
+            if (!chmin(dp[current], cost)) continue;
             for (auto e : get_edges(current)) {
                 auto next = e.to;
-                auto [ni,nj] = transform(next);
-                if (e.cost) {
-                    S.push_back({next,dp[i][j]+e.cost}); // コスト1の辺は後ろにpush
-                }
-                else {
-                    S.push_front({next,dp[i][j]+e.cost}); // コスト0の辺は前にpush
-                }
+                if (e.cost) S.emplace_back(next,dp[current]+e.cost); // コスト1の辺は後ろにpush
+                else S.emplace_front(next,dp[current]+e.cost); // コスト0の辺は前にpush
             }
         }
+        return dp;
     }
 
     // ベルマンフォード: O(V*E), 負の閉路が存在し最短距離が負へと発散するときは ShortestPath(false) 返す
