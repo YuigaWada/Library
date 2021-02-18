@@ -153,7 +153,6 @@ struct Graph {
     // 01BFS: O(E+V)
     vecl zero_one_bfs(ll start, ll V, ll initial_cost = 0) {
         vecl dp(V, INF);
-        dp[start] = initial_cost;
 
         deque<pairl> S;
         S.emplace_front(start,initial_cost);
