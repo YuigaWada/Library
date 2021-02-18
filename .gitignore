@@ -2,3 +2,4 @@
 python/
 util/
 cpp/ACL
+berlekamp-massey.cpp
