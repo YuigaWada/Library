@@ -1,0 +1,208 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define LOCAL // 提出時はコメントアウト
+#define DEBUG_
+
+typedef long long ll;
+const double EPS = 1e-9;
+const ll INF = ((1LL<<62)-(1LL<<31));
+typedef vector<ll> vecl;
+typedef pair<ll, ll> pairl;
+template<typename T> using uset = unordered_set<T>;
+template<typename T, typename U> using mapv = map<T,vector<U>>;
+template<typename T, typename U> using umap = unordered_map<T,U>;
+
+#define ALL(v) v.begin(), v.end()
+#define REP(i, x, n) for(int i = x; i < n; i++)
+#define rep(i, n) REP(i, 0, n)
+#define sz(x) (ll)x.size()
+ll llceil(ll a,ll b) { return (a+b-1)/b; }
+template<class T> inline bool chmax(T& a, T b) { if (a < b) { a = b; return true; } return false; }
+template<class T> inline bool chmin(T& a, T b) { if (a > b) { a = b; return true; } return false; }
+template<class T> vector<vector<T>> genarr(ll n, ll m, T init) { return vector<vector<T>>(n,vector<T>(m,init)); }
+
+///// DEBUG
+#define DUMPOUT cerr
+#define repi(itr, ds) for (auto itr = ds.begin(); itr != ds.end(); itr++)
+template<typename T>istream&operator>>(istream&is,vector<T>&vec){for(T&x:vec)is>>x;return is;}
+template<typename T,typename U>ostream&operator<<(ostream&os,pair<T,U>&pair_var){os<<"("<<pair_var.first<<", "<<pair_var.second<<")";return os;}
+template<typename T>ostream&operator<<(ostream&os,const vector<T>&vec){os<<"{";for(int i=0;i<vec.size();i++){os<<vec[i]<<(i+1==vec.size()?"":", ");}
+os<<"}";return os;}
+template<typename T,typename U>ostream&operator<<(ostream&os,map<T,U>&map_var){os<<"{";repi(itr,map_var){os<<*itr;itr++;if(itr!=map_var.end())os<<", ";itr--;}
+os<<"}";return os;}
+template<typename T>ostream&operator<<(ostream&os,set<T>&set_var){os<<"{";repi(itr,set_var){os<<*itr;itr++;if(itr!=set_var.end())os<<", ";itr--;}
+os<<"}";return os;}
+void dump_func(){DUMPOUT<<endl;}
+template<class Head,class...Tail>void dump_func(Head&&head,Tail&&...tail){DUMPOUT<<head;if(sizeof...(Tail)>0){DUMPOUT<<", ";}
+dump_func(std::move(tail)...);}
+#ifndef LOCAL
+#undef DEBUG_
+#endif
+#ifdef DEBUG_
+#define DEB
+#define dump(...)                                                          \
+DUMPOUT << "  " << string(#__VA_ARGS__) << ": "                            \
+        << "[" << to_string(__LINE__) << ":" << __FUNCTION__ << "]"        \
+        << endl                                                            \
+        << "    ",                                                         \
+    dump_func(__VA_ARGS__)
+#else
+#define DEB if (false)
+#define dump(...)
+#endif
+
+//////////
+
+#pragma GCC target("avx2")
+#pragma GCC optimize("O3")
+#pragma GCC optimize("unroll-loops")
+
+// #PORT#
+// name: "test"
+// prefix: "testcase"
+// description: "testcase"
+
+#ifdef DEBUG_
+
+ll solve();
+ll greedy();
+
+enum casetype { 
+    smallcorner = 0,
+    bigcorner = 1,
+    normal = 2,
+};
+
+using Range = pairl; // [m,M]
+
+struct Param {
+    using uid = uniform_int_distribution<ll>;
+    
+    ll m,M;
+    mt19937_64 rnd;
+    uid dist;
+    Param(Range range) : m(range.first), M(range.second) { // m <= x <= M
+        random_device seed_gen;
+        rnd = mt19937_64(seed_gen()); 
+        dist = uid(m,M);
+    }
+
+    ll make(casetype type = normal) {
+        if (type == casetype::smallcorner) return m;
+        else if (type == casetype::bigcorner) return M;
+        return dist(rnd);
+    }
+};
+
+struct ParamGen {
+    int N;
+    vector<Param> params;
+    ParamGen(vector<Range> ranges) : N(sz(ranges)) {
+        rep(i,sz(ranges)) params.push_back(Param(ranges[i]));
+    }
+
+    vector<vecl> make() { // O(3^N)
+        vector<vecl> res;
+        rep(i,pow(N,3)) {
+            vecl sub;
+            int _i = i;
+            rep(j,N) {
+                sub.push_back(params[j].make(casetype(_i % 3)));
+                _i /= 3;
+            }
+            res.push_back(sub);
+        }
+        return res;
+    }
+};
+
+void stress_test() { // 入力データを書き換えるので注意
+    vector<Range> ranges;
+    ranges.emplace_back(1,1e18); // X
+    ranges.emplace_back(1,20); // M
+
+    ParamGen pg(ranges);
+    int count = 0;
+    for (auto params : pg.make()) {
+        ofstream wf;
+        wf.open("../../Atcoder/input.txt");
+    
+        wf << params[0] << endl;
+        wf << params[1];
+
+        wf.close();
+        
+        cout << (count++) << "... ";
+
+        auto ans = solve();
+        auto ans_greedy = greedy();
+
+        if (ans == ans_greedy) {
+            cout << "pass!" << endl;
+            continue;
+        }
+
+        cout << "fail." << endl << endl << "TestCase: " << endl;
+        
+        ifstream rf("../../Atcoder/input.txt");
+
+        while (!rf.eof()) {
+            string str;
+            std::getline(rf, str);
+            cout << str << endl;
+        }
+
+        rf.close();
+
+        cout << endl << "ans = " << ans << endl;
+        cout << "ans_greedy = " << ans_greedy << endl;
+
+        cout << "_________" << endl;
+    }
+}
+
+ll greedy() { // 愚直解
+    ifstream in("../../Atcoder/input.txt");
+    cin.rdbuf(in.rdbuf());
+
+    ll M;
+    string X;
+    cin>>X>>M;
+
+    ll d = 0;
+    rep(i,sz(X)) {
+        ll _d = X[i] - '0';
+        chmax(d,_d);
+    }
+
+    auto f = [&X,&M](ll n) {
+        Bint res = 0;
+        Bint t = 1;
+        rep(i,sz(X)) {
+            ll x = X[sz(X)-1-i] - '0';
+            res += x * t;
+            t *= n;
+        }
+        return res <= (Bint)M;
+    };
+
+    if (sz(X) == 1) {
+        return d <= M;
+    }
+
+    ll ans = 0, x = d + 1;
+    while (f(x)) {
+        ans++;
+        x++;
+    }
+
+    return ans;
+}
+
+#endif
+
+#ifndef DEBUG_
+void stress_test() {}
+#endif
+
+// #PORT_END#
