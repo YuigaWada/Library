@@ -61,11 +61,10 @@ DUMPOUT << "  " << string(#__VA_ARGS__) << ": "                            \
 // name: "test"
 // prefix: "testcase"
 // description: "testcase"
-
 #ifdef DEBUG_
 
-ll solve();
-ll greedy();
+int solve(ostringstream &cout);
+int greedy(ostringstream &cout);
 
 enum casetype { 
     smallcorner = 0,
@@ -118,8 +117,8 @@ struct ParamGen {
 
 void stress_test() { // 入力データを書き換えるので注意
     vector<Range> ranges;
-    ranges.emplace_back(1,1e18); // X
-    ranges.emplace_back(1,20); // M
+    ranges.emplace_back(1,1e6); // K
+    ranges.emplace_back(1,1e6+10); // M
 
     ParamGen pg(ranges);
     int count = 0;
@@ -134,8 +133,11 @@ void stress_test() { // 入力データを書き換えるので注意
         
         cout << (count++) << "... ";
 
-        auto ans = solve();
-        auto ans_greedy = greedy();
+        ostringstream oss,oss_greedy;
+        solve(oss), greedy(oss_greedy);
+
+        string ans = oss.str();
+        string ans_greedy = oss_greedy.str();
 
         if (ans == ans_greedy) {
             cout << "pass!" << endl;
@@ -159,44 +161,6 @@ void stress_test() { // 入力データを書き換えるので注意
 
         cout << "_________" << endl;
     }
-}
-
-ll greedy() { // 愚直解
-    ifstream in("../../Atcoder/input.txt");
-    cin.rdbuf(in.rdbuf());
-
-    ll M;
-    string X;
-    cin>>X>>M;
-
-    ll d = 0;
-    rep(i,sz(X)) {
-        ll _d = X[i] - '0';
-        chmax(d,_d);
-    }
-
-    auto f = [&X,&M](ll n) {
-        Bint res = 0;
-        Bint t = 1;
-        rep(i,sz(X)) {
-            ll x = X[sz(X)-1-i] - '0';
-            res += x * t;
-            t *= n;
-        }
-        return res <= (Bint)M;
-    };
-
-    if (sz(X) == 1) {
-        return d <= M;
-    }
-
-    ll ans = 0, x = d + 1;
-    while (f(x)) {
-        ans++;
-        x++;
-    }
-
-    return ans;
 }
 
 #endif
