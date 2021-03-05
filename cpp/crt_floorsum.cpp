@@ -8,6 +8,12 @@ typedef long long ll;
 
 /// ACL Math: https://atcoder.github.io/ac-library/production/document_ja/math.html
 
+
+// #PORT#
+// name: "crt"
+// prefix: "crt"
+// description: "crt(中国剰余定理)"
+
 // @param m `1 <= m`
 // @return x mod m
 constexpr long long safe_mod(long long x, long long m) {
@@ -102,6 +108,8 @@ std::pair<long long, long long> crt(const std::vector<long long>& r,
     }
     return {r0, m0};
 }
+
+// #PORT_END#
 
 long long floor_sum(long long n, long long m, long long a, long long b) {
     long long ans = 0;
