@@ -606,3 +606,15 @@ struct ModInt {
 using modint = ModInt;
 
 // #PORT_END#
+
+// #PORT#
+// name: "modcount"
+// prefix: "modcount"
+// description: "n ∈ [l,r] ≡ x (mod m)"
+
+ll modcount(ll l, ll r, ll m, ll x) { // 閉区間[l,r]内に mod m で x となるものはいくつあるか 
+    ll R = (r - x + m) / m, L = (l - x + m - 1) / m;
+    return R - L;
+}
+
+// #PORT_END#
