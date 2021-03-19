@@ -280,6 +280,26 @@ struct Graph {
         rep(i,size()) if (deg[i] == 1) return {i,g2};
         return {0,g2};
     }
+
+    // トポロジカルソート: O(E+V), ソート済みの頂点集合を返す
+    vecl topological_sort() {
+        ll N = size();
+        vecl res, indeg(N,0LL);
+
+        queue<ll> S;
+        rep(i,N) for (auto e : get_edges(i)) indeg[e.to]++;
+        rep(i,N) if (indeg[i] == 0) S.push(i);
+        
+        while (!S.empty()) { // 訪問が済んだ頂点は削除しつつ入次数が0となる点を順に採用していく
+            ll current = S.front(); S.pop();
+            res.push_back(current);
+            for (auto e : get_edges(current)) {
+                indeg[e.to]--;
+                if (indeg[e.to] == 0) S.push(e.to);
+            }
+        }
+        return res;
+    }
 };
 
 
