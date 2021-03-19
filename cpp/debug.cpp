@@ -115,19 +115,50 @@ struct ParamGen {
     }
 };
 
+enum arraytype {
+    permutation = 0,
+    randomness = 1,
+};
+
+struct ArrayGen {
+    Range range;
+    arraytype type;
+
+    ArrayGen(Range range, arraytype type = randomness) : range(range), type(type) {}
+
+    vecl make(int size) {
+        vecl X(size,0LL);
+        if (type == arraytype::permutation) iota(ALL(X),range.first);
+        else rep(i,size) X.push_back(Param(range).make());
+
+        // shuffle
+        random_device grd;
+        mt19937 grm(grd());
+        shuffle(ALL(X),grm);
+
+        return X;
+    }
+};
+
 void stress_test() { // 入力データを書き換えるので注意
     vector<Range> ranges;
-    ranges.emplace_back(1,1e6); // K
-    ranges.emplace_back(1,1e6+10); // M
+    ranges.emplace_back(1,5); // N
+    ranges.emplace_back(1,5); // K
 
     ParamGen pg(ranges);
     int count = 0;
     for (auto params : pg.make()) {
         ofstream wf;
         wf.open("../../Atcoder/input.txt");
-    
+
+        ll N = params[0];
         wf << params[0] << endl;
-        wf << params[1];
+
+        // ArrayGen ag({1,N},arraytype::randomness);
+        // auto A = ag.make(N);
+        // auto B = ag.make(N);
+        
+        // rep(i,N) wf << A[i] << " " << B[i] << endl;
 
         wf.close();
         
