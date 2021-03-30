@@ -145,25 +145,22 @@ int nPk_example()
 // name: "Osak"
 // prefix: "osak"
 // description: "高速素因数分解"
-template <ll maxim>
-class Osak{
-    public:
-    ll spf[maxim];
-    Osak() {
-        ll spf[maxim];
-        rep(i, maxim) {
-            spf[i] = i;
-        }
+
+struct Osak {
+    vecl spf;
+    Osak(ll N) {
+        spf = vecl(N);
+        rep(i,N) spf[i] = i;
 
         ll i = 2;
-        while (i * i <= maxim) {
+        while (i * i <= N) {
             if (spf[i] != i) {
-                i += 1;
+                i++;
                 continue;
             }
 
             ll j = i * i;
-            while (j <= maxim) {
+            while (j <= N) {
                 if (spf[j] != j) {
                         j += i;
                         continue;
@@ -172,12 +169,12 @@ class Osak{
                 spf[j] = i;
                 j += i;
             }
-            i += 1;
+            i++;
         }
     }
 
-    map<ll, vector<ll>> get(ll n) { // O(log n), Σp^eの形のmapを返す
-        map<ll, vector<ll>> m;
+    umap<ll,ll> get(ll n) { // O(log n), Σp^eの形のmapを返す
+        umap<ll,ll> m;
         while (n > 1) {
             if (m.count(spf[n]) == 0) m[spf[n]] = 0;
 
@@ -186,8 +183,8 @@ class Osak{
         }
         return m;
     }
-
 };
+
 
 // #PORT_END#
 
