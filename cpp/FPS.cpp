@@ -15,7 +15,7 @@ template<typename T, typename U> using umap = unordered_map<T,U>;
 #define ALL(v) v.begin(), v.end()
 #define REP(i, x, n) for(int i = x; i < n; i++)
 #define rep(i, n) REP(i, 0, n)
-#define contains(S,x) find(ALL(S),x) != S.end()
+#define sz(x) (ll)x.size()
 ll llceil(ll a,ll b) { return (a+b-1)/b; }
 template<class T> inline bool chmax(T& a, T b) { if (a < b) { a = b; return true; } return false; }
 template<class T> inline bool chmin(T& a, T b) { if (a > b) { a = b; return true; } return false; }
@@ -58,7 +58,6 @@ DUMPOUT << "  " << string(#__VA_ARGS__) << ": "                            \
 // name: "fps"
 // prefix: "fps"
 // description: "形式的べき級数"
-
 template<int MOD> struct ModInt {
     static const int Mod = MOD; unsigned x; ModInt() : x(0) { }
     ModInt(signed sig) { x = sig < 0 ? sig % MOD + MOD : sig % MOD; }
@@ -109,16 +108,16 @@ struct FormalPowerSeries {
     }
 
     Poly add(Poly as, Poly bs) {
-        int sz = max(as.size(), bs.size());
-        Poly cs(sz, T(0));
+        int size_ = max(as.size(), bs.size());
+        Poly cs(size_, T(0));
         for (int i = 0; i < (int)as.size(); i++) cs[i] += as[i];
         for (int i = 0; i < (int)bs.size(); i++) cs[i] += bs[i];
         return cs;
     }
 
     Poly sub(Poly as, Poly bs) {
-        int sz = max(as.size(), bs.size());
-        Poly cs(sz, T(0));
+        int size_ = max(as.size(), bs.size());
+        Poly cs(size_, T(0));
         for (int i = 0; i < (int)as.size(); i++) cs[i] += as[i];
         for (int i = 0; i < (int)bs.size(); i++) cs[i] -= bs[i];
         return cs;
@@ -223,7 +222,6 @@ struct FormalPowerSeries {
 
 #define FOR(i,n) for(int i = 0; i < (n); i++)
 #define fore(i,a) for(auto &i:a)
-#define sz(c) ((int)(c).size())
 #define ten(x) ((int)1e##x)
 template<class T> T extgcd(T a, T b, T& x, T& y) { for (T u = y = 1, v = x = 0; a;) { T q = b / a; swap(x -= q * u, u); swap(y -= q * v, v); swap(b -= q * a, a); } return b; }
 template<class T> T mod_inv(T a, T m) { T x, y; extgcd(a, m, x, y); return (m + x % m) % m; }
@@ -275,7 +273,7 @@ struct MathsNTTModAny {
         }
         void intt(vector<ll>& input) {
             _ntt(input, -1);
-            const int n_inv = mod_inv(sz(input), mod);
+            const int n_inv = mod_inv((int)sz(input), mod);
             for (auto& x : input) x = x * n_inv % mod;
         }
 
@@ -391,17 +389,17 @@ FormalPowerSeries<modint> get_fps() { // 係数情報のvectorはmodintを使う
     return fps;
 }
 
-// P / Q の x^Nの係数のみを求める: O(M * log N)
+// [x^N]P/Q : O(M * log N)
 // http://q.c.titech.ac.jp/docs/progs/polynomial_division.html
-modint div_coeff(vector<modint> P, vector<modint> Q, ll N, MathsNTTModAny<MOD> ntt) {
+modint bostan_mori(vector<modint> P, vector<modint> Q, ll N, MathsNTTModAny<MOD> ntt) {
     assert(Q[0] == 1);
     assert(Q.size() == P.size() + 1);
 
     while (N) {
         vector<modint> Q1;
-        rep(i,Q.size()/2) {
-            Q1.push_back(Q[2*i]); 
-            Q1.push_back(modint(MOD) - Q[2*i+1]); 
+        rep(i,Q.size()/2+1) {
+            if (2 * i < sz(Q)) Q1.push_back(Q[2*i]); 
+            if (2 * i + 1 < sz(Q)) Q1.push_back(- Q[2*i+1]);
         }
         
         ll offset = N & 1;
@@ -409,23 +407,26 @@ modint div_coeff(vector<modint> P, vector<modint> Q, ll N, MathsNTTModAny<MOD> n
         auto nQ = ntt.solve(Q,Q1,MOD);
 
         vector<modint> nnP,nnQ;
-        rep(i,nP.size()/2) {
-            nnP.push_back(nP[2*i+offset]);
-        }
+        rep(i,nP.size()/2+1) if (2*i+offset < sz(nP)) nnP.push_back(nP[2*i+offset]);
+        rep(i,nQ.size()/2+1) if (2*i < sz(nQ)) nnQ.push_back(nQ[2*i]);
 
-        rep(i,nQ.size()/2) {
-            nnQ.push_back(nQ[2*i]);
-        }
-
-        P = nnP;
-        Q = nnQ;
-
+        P = nnP, Q = nnQ;
         N >>= 1;
     }
 
-    // dump(P,Q);
-    modint ans = P[0];
-    return ans;
+    return P[0];
+}
+
+// a_n = a_n-1 * c_1 + a_n-2 * c_2 + ... + a_n-k * c_k のN項目を返す (N: 0-index)
+modint get_Nth(vector<modint> &A, vector<modint> &C, ll N, MathsNTTModAny<MOD> ntt) {
+    if (N < sz(A)) return A[N];
+    assert(sz(A) == sz(C));
+
+    vector<modint> Q(1,1);
+    rep(i,sz(C)) Q.push_back(modint(-1) * C[i]);
+    vector<modint> P = ntt.solve(A,Q,MOD);
+    P.resize(sz(Q)-1);
+    return bostan_mori(P,Q,N,ntt);
 }
 
 
