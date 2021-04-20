@@ -418,7 +418,7 @@ modint bostan_mori(vector<modint> P, vector<modint> Q, ll N, MathsNTTModAny<MOD>
 }
 
 // a_n = a_n-1 * c_1 + a_n-2 * c_2 + ... + a_n-k * c_k のN項目を返す (N: 0-index)
-modint get_Nth(vector<modint> &A, vector<modint> &C, ll N, MathsNTTModAny<MOD> ntt) {
+modint get_Nth(const vector<modint> &A, const vector<modint> &C, ll N, MathsNTTModAny<MOD> ntt) {
     if (N < sz(A)) return A[N];
     assert(sz(A) == sz(C));
 
