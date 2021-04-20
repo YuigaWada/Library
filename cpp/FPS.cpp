@@ -417,6 +417,35 @@ modint bostan_mori(vector<modint> P, vector<modint> Q, ll N, MathsNTTModAny<MOD>
     return P[0];
 }
 
+vector<modint> berlekamp_massey(const vector<modint> &A) {
+    vector<modint> C{-1}, C2{0};
+    modint r2 = 1;
+    int N = sz(A), i2 = -1;
+    rep(i,N) {
+        modint r = 0;
+        int d = sz(C), d2 = sz(C2);
+        rep(j,d) r += C[j] * A[i-j];
+
+        modint coef = -r * r2.inverse();
+        if(r == 0) continue;
+
+        if(d - i >= d2 - i2) {
+            rep(j,d2) C[j+i-i2] += C2[j] * coef;
+            continue;
+        }
+
+        vector<modint> buff = C;
+        C.resize(d2+i-i2);
+        rep(j,d2) C[j+i-i2] += C2[j] * coef;
+        C2 = buff, i2 = i, r2 = r;
+    }
+
+    vector<modint> res;
+    rep(i,sz(C)-1) res.push_back(C[i+1]);
+
+    return res;
+}
+
 // a_n = a_n-1 * c_1 + a_n-2 * c_2 + ... + a_n-k * c_k のN項目を返す (N: 0-index)
 modint get_Nth(const vector<modint> &A, const vector<modint> &C, ll N, MathsNTTModAny<MOD> ntt) {
     if (N < sz(A)) return A[N];
