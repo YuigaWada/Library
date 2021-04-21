@@ -101,45 +101,20 @@ struct Rational {
 };
 // #PORT_END#
 
-
-void dummy() {
 // #PORT#
 // name: "permutation"
 // prefix: "perm"
 // description: "順列"
-
+void get_perm() {
     vecl perm(N,0LL);
-    perm[0] = 0;
-    rep(i,N-1) perm[i+1] += perm[i] + 1;
-
-    // 上の処理はiota(ALL(perm),1); とかでもできる
+    iota(ALL(perm),0);
     
-    // do-while回るごとにpermには順列が格納されている
     do {
         f(perm);
     } while(next_permutation(ALL(perm)));
-
+}
 // #PORT_END#
-}
 
-
-
-
-
-int nPk_example()
-{
-
-    vector<int> nums(5);
-    iota(nums.begin(), nums.end(), 0);
-
-    do
-    {
-        // 処理
-        // numsに所定の数字が入ってる
-    } while (next_permutation(nums.begin(), nums.end()));
-
-    return 0;
-}
 
 // #PORT#
 // name: "Osak"
@@ -342,6 +317,10 @@ class Combinatorics {
 
 // #PORT_END#
 
+// #PORT#
+// name: "prime_fact"
+// prefix: "prime_fact"
+// description: "素因数分解"
 
 // 素因数分解(vector)
 vector<ll> prime_vec(ll n) {
@@ -421,7 +400,12 @@ map<ll,ll> prime_factorize(ll n) {
     return counter;
 }
 
+// #PORT_END#
 
+// #PORT#
+// name: "prime"
+// prefix: "prime"
+// description: "素数"
 
 // N以下の素数
 vector<ll> get_prime(ll N){
@@ -442,40 +426,7 @@ vector<ll> get_prime(ll N){
     return P;
 }
 
-
-
-
-// FOR DEBUG
-void printVector(const vector<ll>& vec) {
-    for (int value : vec) {
-        cout << value << " ";
-    }
-    cout << endl;
-}
-
-
-int main() {
-    // auto d = divisors(100);
-    // printVector(d);
-
-    // auto comb = Combinatorics<13,100000000+7>();
-    // cout << comb.nPk(12,12) << endl;
-
-    // auto d = prime_vec(3000);
-    // printVector(d);
-
-    // auto d = prime_factorize(12345);
-
-    auto d = get_prime(10000000);
-    // printVector(d);
-    cout << d.size() << endl;
-
-    // for (const auto& [key, value] : d){
-    //     std::cout << key << " => " << value << "\n";
-    // }
-
-    return 1;
-}
+// #PORT_END#
 
 
 // #PORT#
