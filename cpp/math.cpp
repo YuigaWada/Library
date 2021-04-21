@@ -566,3 +566,38 @@ ll modcount(ll l, ll r, ll m, ll x) { // 閉区間[l,r]内に mod m で x と�
 }
 
 // #PORT_END#
+
+
+// #PORT#
+// name: "lucas"
+// prefix: "lucas"
+// description: "Lucasの定理を利用したnCk計算"
+
+// 前処理 O(mod^2), クエリ: O(logN) 
+// 素数MODのみ使用可
+struct LucasComb {
+    ll mod; // 素数
+    vector<vecl> dp;
+    LucasComb(ll mod) : mod(mod) {
+        dp = genarr(mod+1,mod+1,0LL);
+        dp[0][0] = 1;
+        REP(i,1,mod+1) {
+            dp[i][0] = 1;
+            REP(j,1,mod+1) {
+                dp[i][j] = dp[i-1][j-1] + dp[i-1][j];
+                dp[i][j] %= mod;
+            }
+        }
+    }
+
+    ll nCk(ll n, ll k) {
+        ll res = 1;
+        while (n > 0) {
+            res *= dp[n % mod][k % mod], res %= mod;
+            n /= mod, k /= mod;
+        }
+        return res;
+    }
+};
+
+// #PORT_END#
