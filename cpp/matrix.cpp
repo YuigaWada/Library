@@ -205,9 +205,9 @@ struct vec {
 
     vec cross(const vec &q) { // cross product = p × q
         vec res;
-        res.x = y * q.z - q.y - z;
-        res.y = -x * q.z + q.x - z;
-        res.z = x * q.y - q.x - y;
+        res.x = y * q.z - q.y * z;
+        res.y = -x * q.z + q.x * z;
+        res.z = x * q.y - q.x * y;
         return res;
     }
 
