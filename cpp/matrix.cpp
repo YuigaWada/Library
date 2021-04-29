@@ -187,3 +187,64 @@ struct Matrix {
 
 
 // #PORT_END#
+
+// #PORT#
+// name: "vec"
+// prefix: "vec"
+// description: "3次元ベクトル"
+
+double pi = 3.141592653589793238;
+struct vec {
+    using ld = long double;
+    ld x, y, z;
+    vec(ld x = 0, ld y = 0, ld z = 0) : x(x), y(y), z(z) {}
+
+    ld dot(const vec &q) { // dot product
+        return x * q.x + y * q.y + z * q.z;
+    }  
+
+    vec cross(const vec &q) { // cross product = p × q
+        vec res;
+        res.x = y * q.z - q.y - z;
+        res.y = -x * q.z + q.x - z;
+        res.z = x * q.y - q.x - y;
+        return res;
+    }
+
+    vec rot2D(ld rad) { // xy平面で回転
+        assert(z == 0);
+        ld c = cos(rad), s = sin(rad);
+        return vec {c*x-s*y,s*x+c*y};
+    }
+
+    ld norm() { // |p|^2
+        return x * x + y * y + z * z;
+    }
+
+    ld abs() { // |p|
+        return sqrt(norm());
+    }
+
+    vec operator+(const vec &q) {
+        return vec {x+q.x, y+q.y, z+q.z};
+    }
+
+    vec operator-(const vec &q) {
+        return vec {x-q.x, y-q.y, z-q.z};
+    }   
+
+    vec operator*(ld c) {
+        return vec {x*c,y*c,z*c};
+    }
+    
+    vec operator/(ld c) {
+        return vec {x/c,y/c,z/c};
+    }
+    
+    friend ostream &operator<<(ostream &os, const vec &p) {
+        return os << "(" << p.x << "," << p.y << "," << p.z << ")";
+    }
+
+};
+
+// #PORT_END#
