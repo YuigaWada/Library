@@ -61,6 +61,7 @@ DUMPOUT << "  " << string(#__VA_ARGS__) << ": "                            \
 // name: "test"
 // prefix: "testcase"
 // description: "testcase"
+int judgecheck = 0, greedycheck = 1;
 #ifdef DEBUG_
 
 int solve(ostringstream &cout);
@@ -140,64 +141,110 @@ struct ArrayGen {
     }
 };
 
-void stress_test() { // 入力データを書き換えるので注意
-    vector<Range> ranges;
-    ranges.emplace_back(1,5); // N
-    ranges.emplace_back(1,5); // K
 
-    ParamGen pg(ranges);
-    int count = 0;
-    for (auto params : pg.make()) {
-        ofstream wf;
-        wf.open("../../Atcoder/input.txt");
+struct StressTester { // stress_test
+    enum checktype {
+        judgec = 0,
+        greedyc = 1,
+    };
 
-        ll N = params[0];
-        wf << params[0] << endl;
+    StressTester() = default;
 
-        // ArrayGen ag({1,N},arraytype::randomness);
-        // auto A = ag.make(N);
-        // auto B = ag.make(N);
-        
-        // rep(i,N) wf << A[i] << " " << B[i] << endl;
-
-        wf.close();
-        
-        cout << (count++) << "... ";
-
-        ostringstream oss,oss_greedy;
-        solve(oss), greedy(oss_greedy);
-
-        string ans = oss.str();
-        string ans_greedy = oss_greedy.str();
-
-        if (ans == ans_greedy) {
-            cout << "pass!" << endl;
-            continue;
-        }
-
-        cout << "fail." << endl << endl << "TestCase: " << endl;
-        
+    void print_testcase() {
         ifstream rf("../../Atcoder/input.txt");
-
         while (!rf.eof()) {
             string str;
             std::getline(rf, str);
             cout << str << endl;
         }
-
         rf.close();
-
-        cout << endl << "ans = " << ans << endl;
-        cout << "ans_greedy = " << ans_greedy << endl;
-
-        cout << "_________" << endl;
     }
+
+    pair<string,string> get_answer() {
+        ostringstream oss,oss_greedy;
+        solve(oss), greedy(oss_greedy);
+
+        string ans = oss.str();
+        string ans_greedy = oss_greedy.str();
+        return {ans,ans_greedy};
+    }
+
+    bool greedy_check(string ans, string ans_greedy) { // solve vs greedy
+        return ans == ans_greedy;
+    }
+
+    bool judge_check(ll N) { // solve vs judge
+        ostringstream oss;
+        solve(oss);
+        istringstream cin(oss.str());
+
+        return true;
+    }
+
+    void run(checktype ctype = checktype::greedyc, bool pausable = false) { // 入力データを書き換えるので注意
+        vector<Range> ranges;
+        ranges.emplace_back(1,5); // N
+        ranges.emplace_back(1,5); // K
+
+        ParamGen pg(ranges);
+        int count = 0;
+        int pass = 0;
+        for (auto params : pg.make()) {
+            // gen params
+            ll N = params[0];
+            ArrayGen ag({0,N-1},arraytype::randomness);
+            auto A = ag.make(N);
+
+            // write testcases 
+            ofstream wf; wf.open("../../Atcoder/input.txt");
+            wf << N << endl;
+            rep(i,N) wf << A[i]+1 << " \n"[i==N-1];
+            wf.close(); 
+
+            // solve vs greedy
+            auto [ans,ans_greedy] = get_answer();
+            bool is_ok = ctype == checktype::greedyc ? greedy_check(ans,ans_greedy) : judge_check(N);
+            cout << (count++) << "... ";
+            if (is_ok) {
+                cout << "pass!" << endl;
+                pass++;
+            }
+            else {
+                cout << "fail." << endl;
+                cout << "TestCase: " << endl;
+                print_testcase();
+                
+                cout << endl << "ans = " << ans << endl;
+                if (ctype == checktype::greedyc) cout << "ans_greedy = " << ans_greedy << endl;
+                cout << "------------" << endl;
+                if (pausable) break;
+            }
+        }
+
+        if (pausable && count != pass) {
+            cout << "fail: 1" << endl;
+            return;
+        }
+
+        cout << endl << "---- results ----" << endl;
+        cout << "pass: " << pass << endl;
+        cout << "fail: " << count - pass << endl;
+        cout << "---" << endl;
+        cout << "all: " << count << endl;
+    }
+};
+
+void stress_test(int ctype = greedycheck, bool pausable = false) {
+    auto st = StressTester();
+    auto ct = StressTester::checktype::greedyc;
+    if (ctype == judgecheck) ct = StressTester::checktype::judgec;
+    st.run(ct, pausable);
 }
 
 #endif
 
 #ifndef DEBUG_
-void stress_test() {}
+void stress_test(int ctype = greedycheck, bool pausable = false) {}
 #endif
 
 // #PORT_END#
