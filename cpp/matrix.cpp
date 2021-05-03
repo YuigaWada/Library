@@ -194,12 +194,12 @@ struct Matrix {
 // description: "3次元ベクトル"
 
 double pi = 3.141592653589793238;
+template <class T = long double>
 struct vec {
-    using ld = long double;
-    ld x, y, z;
-    vec(ld x = 0, ld y = 0, ld z = 0) : x(x), y(y), z(z) {}
+    T x, y, z;
+    vec(T x = 0, T y = 0, T z = 0) : x(x), y(y), z(z) {}
 
-    ld dot(const vec &q) { // dot product
+    T dot(const vec &q) { // dot product
         return x * q.x + y * q.y + z * q.z;
     }  
 
@@ -211,17 +211,17 @@ struct vec {
         return res;
     }
 
-    vec rot2D(ld rad) { // xy平面で回転
+    vec rot2D(long double rad) { // xy平面で回転
         assert(z == 0);
-        ld c = cos(rad), s = sin(rad);
+        T c = cos(rad), s = sin(rad);
         return vec {c*x-s*y,s*x+c*y};
     }
 
-    ld norm() { // |p|^2
+    T norm() { // |p|^2
         return x * x + y * y + z * z;
     }
 
-    ld abs() { // |p|
+    long double abs() { // |p|
         return sqrt(norm());
     }
 
@@ -233,11 +233,11 @@ struct vec {
         return vec {x-q.x, y-q.y, z-q.z};
     }   
 
-    vec operator*(ld c) {
+    vec operator*(T c) {
         return vec {x*c,y*c,z*c};
     }
     
-    vec operator/(ld c) {
+    vec operator/(T c) {
         return vec {x/c,y/c,z/c};
     }
     
@@ -245,6 +245,8 @@ struct vec {
         return os << "(" << p.x << "," << p.y << "," << p.z << ")";
     }
 
-};
+    // bool operator==(const vec<T> &q) const { return x == q.x && y == q.y && z == q.z; }
 
+    // bool operator!=(const vec<T> &q) const { return !(*this == q); }
+};
 // #PORT_END#
