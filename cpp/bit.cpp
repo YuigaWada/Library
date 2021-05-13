@@ -50,13 +50,14 @@ template <class T>
 struct Bit { // Tによっては演算変えなきゃいけないので注意
     ll size;
     vector<T> v;
+    vector<T> X;
 
-    Bit(ll n): size(n), v(n+1,T(0)) {}
+    Bit(ll n): size(n), v(n+1,T(0)), X(n+1,T(0)) {}
     Bit(vector<T> vec, ll N = -1) {
         if (N == -1) size = (ll)vec.size() + 1;
         else size = N;
 
-        v.assign(size,T(0));
+        v.assign(size,T(0)), X.assign(size,T(0));
         rep(i,(ll)vec.size()) add(i,vec[i]);
     }
 
@@ -77,6 +78,7 @@ struct Bit { // Tによっては演算変えなきゃいけないので注意
     }
 
     void add(ll index, T x) { // O(logN)
+        X[index] += x;
         index++;
         for (int i = index; i < size + 1; i += (i & -i)) { // (i & -i): LSB
             v[i] += x;
@@ -106,6 +108,11 @@ struct Bit { // Tによっては演算変えなきゃいけないので注意
         }
         return res;
     }
+
+    friend ostream &operator<<(ostream &os, const Bit<T> &p) {
+        return os << p.X;
+    }
+
 };
 
 
