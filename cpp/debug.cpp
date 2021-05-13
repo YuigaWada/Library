@@ -130,7 +130,7 @@ struct ArrayGen {
     vecl make(int size) {
         vecl X(size,0LL);
         if (type == arraytype::permutation) iota(ALL(X),range.first);
-        else rep(i,size) X.push_back(Param(range).make());
+        else rep(i,size) X[i] = Param(range).make();
 
         // shuffle
         random_device grd;
