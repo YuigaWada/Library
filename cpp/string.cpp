@@ -71,6 +71,102 @@ vector<string> split(const string &s, char delim) {
 // #PORT_END#
 
 // #PORT#
+// name: "AhoCorasick"
+// prefix: "ahocorasick"
+// description: "AhoCorasick"
+
+
+using MatchedPair = vector<pair<string,pairl>>;
+struct AhoCorasick {
+    char e;
+    vector<string> Ps;
+    vector<vecl> V; // V[i]: 状態iと対応するパターン群 (iに到達=パターンiが検出)
+    vecl E; // E[i]: 遷移i
+    vecl failure; // failure[i]: 状態iで検索失敗時の遷移先
+    vector<vecl> g; // g[i][c]: 状態iから遷移c+'a'(c+e)した時の遷移先
+
+    AhoCorasick(vector<string> patterns, char e = 'a') : Ps(patterns), e(e) { // edgeに文字, nodeに状態
+        calc_goto(); 
+        calc_failure();
+    }
+
+    void calc_goto() {
+        g.emplace_back(vecl(26,0)); // g[0][i] = 0
+        V.emplace_back(vecl());
+        rep(i,sz(Ps)) {
+            ll v = 0;
+            for (auto _c : Ps[i]) {
+                int c = _c - e;
+                if (v > 0 && g[v][c] != -1) {
+                    v = g[v][c];
+                    continue;
+                }
+                else if (v == 0 && g[v][c] != 0) {
+                    v = g[v][c];
+                    continue;
+                }
+
+                int vs = sz(V);
+                V.emplace_back(vecl());
+                g.emplace_back(vecl(26,-1));
+                g[v][c] = vs;
+                v = vs;
+            }
+            assert(v < sz(V));
+            V[v].emplace_back(i);
+        }
+    }
+
+    void calc_failure() {
+        failure.assign(sz(V)+1,0LL);
+        queue<ll> S;
+        S.push(0);
+        while (!S.empty()) {
+            ll current = S.front(); S.pop();
+            rep(i,26) {
+                ll next = g[current][i];
+                if (next <= 0) continue;
+
+                S.push(next);
+                if (current != 0) {
+                    ll f = failure[current];
+                    while (g[f][i] == -1) f = failure[f];
+                    failure[next] = g[f][i];
+                    for (auto p : V[failure[next]]) V[next].emplace_back(p);
+                }
+            }
+        }
+    }
+
+    void search(const string &S, MatchedPair &X) { // マッチしたものはXに格納
+        ll v = 0;
+        rep(i,sz(S)) {
+            int c = S[i] - e;
+            while (g[v][c] == -1) v = failure[v];
+            v = g[v][c];
+            rep(j,sz(V[v])) {
+                string x = Ps[V[v][j]];
+                X.emplace_back(x,pairl{i-sz(x)+1,i});
+            }
+        }
+    }
+
+    void print() {
+        rep(i,sz(V)) {
+            rep(j,26) {
+                int p = i == 0 ? 0 : -1;
+                if (g[i][j] == p) continue;
+                printf("%d -> %d (%c)\n",i,g[i][j],j+e);
+            }
+        }
+        dump(failure);
+    }
+};
+
+// #PORT_END#
+
+
+// #PORT#
 // name: "KMP"
 // prefix: "kmp"
 // description: "KMP"
