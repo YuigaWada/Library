@@ -81,16 +81,15 @@ struct AhoCorasick {
     char e;
     vector<string> Ps;
     vector<vecl> V; // V[i]: 状態iと対応するパターン群 (iに到達=パターンiが検出)
-    vecl E; // E[i]: 遷移i
-    vecl failure; // failure[i]: 状態iで検索失敗時の遷移先
+    vecl failure; // failure[i]: 検索失敗時の状態iの遷移先
     vector<vecl> g; // g[i][c]: 状態iから遷移c+'a'(c+e)した時の遷移先
 
     AhoCorasick(vector<string> patterns, char e = 'a') : Ps(patterns), e(e) { // edgeに文字, nodeに状態
-        calc_goto(); 
-        calc_failure();
+        build(); // Trie木を作成
+        make_failure(); // BFSでfailureを埋めていく
     }
 
-    void calc_goto() {
+    void build() {
         g.emplace_back(vecl(26,0)); // g[0][i] = 0
         V.emplace_back(vecl());
         rep(i,sz(Ps)) {
@@ -117,7 +116,7 @@ struct AhoCorasick {
         }
     }
 
-    void calc_failure() {
+    void make_failure() {
         failure.assign(sz(V)+1,0LL);
         queue<ll> S;
         S.push(0);
@@ -128,10 +127,10 @@ struct AhoCorasick {
                 if (next <= 0) continue;
 
                 S.push(next);
-                if (current != 0) {
+                if (current != 0) { // 最長の接尾辞をfailureに
                     ll f = failure[current];
                     while (g[f][i] == -1) f = failure[f];
-                    failure[next] = g[f][i];
+                    failure[next] = g[f][i]; // fからi+'a'の遷移ができる状態fを探して,その遷移先g[f][i]をnextのfailureとする
                     for (auto p : V[failure[next]]) V[next].emplace_back(p);
                 }
             }
