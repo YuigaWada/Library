@@ -71,6 +71,46 @@ vector<string> split(const string &s, char delim) {
 // #PORT_END#
 
 // #PORT#
+// name: "KMP"
+// prefix: "kmp"
+// description: "KMP"
+
+struct KMP {
+    string P;
+    vecl table; // table[i]: iでfailした時, どこから検索し直すか
+    KMP(string pattern) : P(pattern) { // O(|P|)
+        table.assign(sz(P)+1,0LL); 
+        table[0] = -1;
+        for (int i = 0, p = -1; i < sz(P); i++) {
+            while (p >= 0 && P[i] != P[p]) p = table[p]; // P[i]と重複している先頭部分P[0:p]を探す(ないならp=-1)
+            table[i+1] = ++p; // S[i-p:i]はP[0:p]と一致しているので, i+1でfailした場合, 検索し直す先頭はP[p+1]から
+        }
+    }
+
+    ll count(const string &S) { // O(|S|)
+        ll res = 0;
+        for (int i = 0, p = 0; i < sz(S); i++) {
+            while (p >= 0 && S[i] != P[p]) p = table[p];
+            if (p == sz(P) - 1) res++;
+            p++;
+        }
+        return res;
+    }
+
+    ll find(const string &S) { // マッチしたSの先頭indexを返す, O(|S|)
+        for (int i = 0, p = 0; i < sz(S); i++) {
+            while (p >= 0 && S[i] != P[p]) p = table[p];
+            if (p == sz(P) - 1) return i - sz(P) + 1;
+            p++;
+        }
+        return -1;
+    }
+};
+
+
+// #PORT_END#
+
+// #PORT#
 // name: "RollingHash"
 // prefix: "rollinghash"
 // description: "ロリハ"
