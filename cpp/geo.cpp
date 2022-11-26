@@ -7,7 +7,9 @@ typedef long long ll;
 const double EPS = 1e-9;
 const ll INF = ((1LL<<62)-(1LL<<31));
 typedef vector<ll> vecl;
-typedef pair<ll, ll> pairl;
+typedef vector<ll> vl;
+typedef pair<ll, ll> pl;
+typedef vector<pl> vp;
 template<typename T> using uset = unordered_set<T>;
 template<typename T, typename U> using mapv = map<T,vector<U>>;
 template<typename T, typename U> using umap = unordered_map<T,U>;
@@ -15,7 +17,10 @@ template<typename T, typename U> using umap = unordered_map<T,U>;
 #define ALL(v) v.begin(), v.end()
 #define REP(i, x, n) for(int i = x; i < n; i++)
 #define rep(i, n) REP(i, 0, n)
-#define contains(S,x) find(ALL(S),x) != S.end()
+#define sz(x) (ll)x.size()
+#define pb(x) push_back(x)
+#define eb(x) emplace_back(x)
+#define pr(x) cout << x << endl
 ll llceil(ll a,ll b) { return (a+b-1)/b; }
 template<class T> inline bool chmax(T& a, T b) { if (a < b) { a = b; return true; } return false; }
 template<class T> inline bool chmin(T& a, T b) { if (a > b) { a = b; return true; } return false; }
@@ -26,15 +31,22 @@ template<class T> vector<vector<T>> genarr(ll n, ll m, T init) { return vector<v
 #define repi(itr, ds) for (auto itr = ds.begin(); itr != ds.end(); itr++)
 template<typename T>istream&operator>>(istream&is,vector<T>&vec){for(T&x:vec)is>>x;return is;}
 template<typename T,typename U>ostream&operator<<(ostream&os,pair<T,U>&pair_var){os<<"("<<pair_var.first<<", "<<pair_var.second<<")";return os;}
-template<typename T>ostream&operator<<(ostream&os,const vector<T>&vec){os<<"{";for(int i=0;i<vec.size();i++){os<<vec[i]<<(i+1==vec.size()?"":", ");}
+template<typename T>ostream&operator<<(ostream&os,vector<T>&vec){os<<"{";for(int i=0;i<vec.size();i++){os<<vec[i]<<(i+1==vec.size()?"":", ");}
 os<<"}";return os;}
 template<typename T,typename U>ostream&operator<<(ostream&os,map<T,U>&map_var){os<<"{";repi(itr,map_var){os<<*itr;itr++;if(itr!=map_var.end())os<<", ";itr--;}
 os<<"}";return os;}
 template<typename T>ostream&operator<<(ostream&os,set<T>&set_var){os<<"{";repi(itr,set_var){os<<*itr;itr++;if(itr!=set_var.end())os<<", ";itr--;}
 os<<"}";return os;}
+template<typename T>ostream&operator<<(ostream&os,uset<T>&set_var){os<<"{";repi(itr,set_var){if(itr!=set_var.begin())os<<", "; os<<*itr;}
+os<<"}";return os;}
+template<typename T,typename U>ostream&operator<<(ostream&os,umap<T,U>&map_var){os<<"{";repi(itr,map_var){if(itr!=map_var.begin())os<<", "; os<<*itr;}
+os<<"}";return os;}
 void dump_func(){DUMPOUT<<endl;}
 template<class Head,class...Tail>void dump_func(Head&&head,Tail&&...tail){DUMPOUT<<head;if(sizeof...(Tail)>0){DUMPOUT<<", ";}
 dump_func(std::move(tail)...);}
+void inp_func(){}
+template<class Head,class...Tail>void inp_func(Head&&head,Tail&&...tail){cin>>head; inp_func(std::move(tail)...);}
+#define ip(...) inp_func(__VA_ARGS__)
 #ifndef LOCAL
 #undef DEBUG_
 #endif
@@ -54,9 +66,9 @@ DUMPOUT << "  " << string(#__VA_ARGS__) << ": "                            \
 //////////
 
 // #PORT#
-// name: "argsort"
-// prefix: "argsort"
-// description: "偏角ソート"
+// name: "geo"
+// prefix: "geo"
+// description: "図形"
 
 struct Rational { 
     ll q,p; // = q / p
@@ -177,6 +189,53 @@ vector<Argsorted> argsort(const vector<pairl> &X) { // 偏角ソート / (x,y)�
         else return Xpos < Ypos;
     });
     return res;
+}
+
+
+ll det(pl x, pl y) {
+    auto [a,b] = x;
+    auto [c,d] = y;
+    return a*d - b*c;
+}
+
+pl sub(pl x, pl y) { // XY
+    auto [a,b] = x;
+    auto [c,d] = y;
+    return {c - a, d - b};
+}
+
+vl convex_hull(vp P) { // monotone chain O(NlogN) : return index
+    ll size = 0;
+    sort(ALL(P));
+
+    vl ch;
+    rep(i,sz(P)) {
+        while (size > 1) {
+            pl current = sub(P[ch[size-2]],P[ch[size-1]]);
+            pl newer = sub(P[ch[size-2]],P[i]);
+            if (det(current,newer) > 0) break;
+            size--;
+            ch.pop_back();
+        }
+        ch.pb(i);
+        size++;
+    }
+
+    ll _size = size;
+    rep(_i,sz(P)-1) {
+        ll i = sz(P) - 2 - _i;
+        while (size > _size) {
+            pl current = sub(P[ch[size-2]],P[ch[size-1]]);
+            pl newer = sub(P[ch[size-2]],P[i]);
+            if (det(current,newer) > 0) break;
+            size--;
+            ch.pop_back();
+        }
+        ch.pb(i);
+        size++;
+    }
+    ch.pop_back();
+    return ch;
 }
 
 // #PORT_END#
